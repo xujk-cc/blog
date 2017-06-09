@@ -1,0 +1,94 @@
+<%- include('common/header') %>
+
+<div class="ui grid">
+    <div class="four wide column"></div>
+    <div class="eight wide column">
+        <form class="ui form segment" method="post" id="signup">
+            <div class="field required">
+                <label>用户名</label>
+                <input placeholder="用户名" type="text" name="name">
+            </div>
+            <div class="field required">
+                <label>密码</label>
+                <input placeholder="密码" type="password" name="password">
+            </div>
+            <div class="field required">
+                <label>重复密码</label>
+                <input placeholder="重复密码" type="password" name="repassword">
+            </div>
+            <div class="field required">
+                <label>性别</label>
+                <select class="ui compact selection dropdown" name="gender">
+                    <option value="m">男</option>
+                    <option value="f">女</option>
+                    <option value="x">保密</option>
+                </select>
+            </div>
+            <div class="field required">
+                <label>头像</label>
+                <img id="avatar_view" style="width: 100px;height:100px;background:#f1f1f1;" src="" />
+                <input type="hidden" name="avatar" id="avatar_src" >
+            </div>
+            <div class="field required">
+                <label>个人简介</label>
+                <textarea name="bio" rows="5" v-model="user.bio"></textarea>
+            </div>
+            <input type="submit" class="ui button fluid" value="注册">
+        </form>
+        <form action="/signup/upload" method="post" enctype="multipart/form-data" id="avatar_form" style="display: none;">
+            <input type="file" id="avatar" name="avatar" accept="image/*">
+        </form>
+    </div>
+</div>
+
+<script src="./javascripts/jquery-1.11.2.min.js"></script>
+<script src="./javascripts/jquery.form.js"></script>
+<script>
+$(function(){
+
+    // 上传头像
+    var aflag = false;
+    $("#avatar_view").on("click", function(){
+        if(!aflag){
+            $("#avatar").click();
+        }else{
+            alert('上传中, 请稍等')
+        }
+    });
+    $("#avatar").on("change", function(){
+        $("#avatar_form").ajaxSubmit({
+            success: function(res){
+                if(res.code == 0){
+                    $("#avatar_view").attr("src", res.data);
+                    $("#avatar_src").val(res.data);
+                }else{
+                    alert('上传失败');
+                }
+            }
+        });
+    })
+
+    // 注册
+    $("#signup").on("submit", function(){
+        var reqData = $(this).serialize();
+        $.ajax({
+            url: '/signup',
+            type: 'POST',
+            data: reqData,
+        })
+        .done(function(res) {
+            alert(res.msg);
+            if(res.code == 0){
+                location.href = res.data;
+            }
+        })
+        .fail(function() {
+            alert('注册失败, 请重试')
+        });
+        return false;
+    });
+})
+</script>
+
+
+<%- include('common/footer') %>
